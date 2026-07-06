@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safety Center — SnapMate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+  --ink:#1B1B1F;         /* yo_onBackground */
+  --ink-soft:#45464F;    /* yo_onSurfaceVariant */
+  --cloud:#F7FAFD;       /* yo_background */
+  --paper:#FFFFFF;
+  --line:#E1E2EC;        /* yo_surfaceVariant */
+  --pine:#005DE9;        /* yo_primary */
+  --pine-deep:#003790;   /* yo_onSecondaryContainer */
+  --brick:#BA1A1A;       /* yo_error */
+  --gold:#735471;        /* yo_tertiary */
+  --radius:14px;
+  --wrap:1180px;
+}
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--cloud);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--pine-deep);
+  }
+  a{color:inherit;}
+  img,svg{display:block;}
+  button{font-family:inherit;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    background:rgba(242,245,244,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar__brand{
+    display:flex; align-items:center; gap:10px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px; letter-spacing:0.05em;
+  }
+  .topbar__brand .dot{width:8px;height:8px;border-radius:50%;background:var(--pine);}
+  .topbar__cta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:0.03em;
+    padding:9px 16px;
+    border-radius:999px;
+    background:var(--ink);
+    color:var(--cloud);
+    text-decoration:none;
+    white-space:nowrap;
+  }
+
+  /* ---------- Mobile chapter rail ---------- */
+  .rail-mobile{
+    display:none;
+    position:sticky; top:57px; z-index:40;
+    background:var(--cloud);
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;
+    white-space:nowrap;
+    padding:10px 20px;
+    gap:8px;
+  }
+  .rail-mobile a{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:7px 12px;
+    margin-right:8px;
+    border-radius:999px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    text-decoration:none;
+    color:var(--ink-soft);
+  }
+  .rail-mobile a.active{background:var(--ink); color:var(--cloud); border-color:var(--ink);}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    max-width:var(--wrap);
+    margin:0 auto;
+    padding:72px 28px 40px;
+  }
+  .hero h1{
+    font-size:clamp(38px,6vw,64px);
+    line-height:1.04;
+    margin-top:14px;
+    max-width:14ch;
+  }
+  .hero h1 em{font-style:italic; color:var(--pine-deep);}
+  .hero p{
+    max-width:46ch;
+    font-size:18px;
+    color:var(--ink-soft);
+    margin-top:18px;
+  }
+  .hero__actions{
+    display:flex; gap:14px; flex-wrap:wrap;
+    margin-top:28px;
+  }
+  .btn-primary, .btn-ghost{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:13px 22px;
+    border-radius:999px;
+    font-size:14.5px; font-weight:500;
+    text-decoration:none;
+    border:1px solid transparent;
+  }
+  .btn-primary{background:var(--pine); color:#fff;}
+  .btn-ghost{border-color:var(--ink); color:var(--ink);}
+
+  /* Signature pulse line */
+  .pulse-wrap{
+    margin-top:56px;
+    padding-top:28px;
+    border-top:1px solid var(--line);
+  }
+  .pulse-wrap svg{width:100%; height:64px;}
+  .pulse-path{
+    fill:none;
+    stroke:var(--brick);
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-dasharray:1200;
+    stroke-dashoffset:1200;
+    animation:draw 2.6s ease-out forwards;
+  }
+  .pulse-path--calm{ stroke:var(--pine); }
+  @keyframes draw{ to{ stroke-dashoffset:0; } }
+  .pulse-caption{
+    display:flex; justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px; color:var(--ink-soft);
+    margin-top:8px;
+  }
+
+  /* ---------- Layout: sidebar + content ---------- */
+  .layout{
+    max-width:var(--wrap);
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:56px;
+    padding:0 28px 100px;
+  }
+  .sidebar{
+    position:sticky; top:90px;
+    align-self:start;
+    height:fit-content;
+  }
+  .sidebar ol{list-style:none; margin:0; padding:0;}
+  .sidebar li{margin-bottom:2px;}
+  .sidebar a{
+    display:flex; gap:10px;
+    padding:9px 10px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:13.5px;
+    color:var(--ink-soft);
+  }
+  .sidebar a .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--pine-deep);
+    opacity:0.7;
+  }
+  .sidebar a.active{background:var(--paper); color:var(--ink); box-shadow:0 0 0 1px var(--line);}
+  .sidebar a.active .num{opacity:1;}
+
+  .content{min-width:0;}
+  section.chapter{
+    padding:56px 0;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:130px;
+  }
+  section.chapter:last-child{border-bottom:none;}
+  .chapter__head{display:flex; gap:16px; align-items:baseline; margin-bottom:8px;}
+  .chapter__num{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--pine-deep);}
+  .chapter h2{font-size:clamp(24px,3vw,32px);}
+  .chapter__intro{color:var(--ink-soft); max-width:56ch; margin-top:10px;}
+
+  /* Rule list (Meet Safely, Online Safety, Privacy, Healthy Relationships, Emergency) */
+  .rule-list{
+    margin-top:28px;
+    display:grid;
+    gap:2px;
+  }
+  .rule{
+    display:grid;
+    grid-template-columns:34px 1fr;
+    gap:16px;
+    padding:18px 0;
+    border-top:1px solid var(--line);
+  }
+  .rule:first-child{border-top:none;}
+  .rule .icon{color:var(--pine); margin-top:2px;}
+  .rule strong{display:block; font-size:15.5px; margin-bottom:3px;}
+  .rule span{color:var(--ink-soft); font-size:14.5px;}
+
+  /* Scam accordion */
+  .scam-list{margin-top:28px; display:grid; gap:10px;}
+  .scam{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .scam summary{
+    list-style:none;
+    display:flex; align-items:center; gap:14px;
+    padding:16px 20px;
+    cursor:pointer;
+    font-weight:500;
+    font-size:15px;
+  }
+  .scam summary::-webkit-details-marker{display:none;}
+  .scam summary .icon{color:var(--brick); flex-shrink:0;}
+  .scam summary .chev{margin-left:auto; color:var(--ink-soft); transition:transform .2s ease;}
+  .scam[open] summary .chev{transform:rotate(45deg);}
+  .scam .body{
+    padding:0 20px 18px 54px;
+    color:var(--ink-soft);
+    font-size:14.5px;
+    max-width:60ch;
+  }
+
+  /* Report vs Block */
+  .compare{
+    margin-top:28px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  .compare .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px;
+  }
+  .compare .card .icon{color:var(--pine); margin-bottom:12px;}
+  .compare .card h3{font-size:18px; margin-bottom:8px; font-family:'Inter',sans-serif; font-weight:600;}
+  .compare .card p{color:var(--ink-soft); font-size:14.5px; margin:0 0 12px;}
+  .compare .card .when{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--pine-deep);
+    border-top:1px solid var(--line);
+    padding-top:12px;
+  }
+  .compare-note{
+    margin-top:16px;
+    font-size:14px;
+    color:var(--ink-soft);
+    background:var(--paper);
+    border-left:3px solid var(--gold);
+    padding:12px 16px;
+    border-radius:0 8px 8px 0;
+  }
+
+  /* Emergency chapter — dark panel */
+  #emergency-help{
+    background:var(--ink);
+    color:var(--cloud);
+    margin:0 -28px;
+    padding:56px 28px;
+    border-radius:0;
+  }
+  #emergency-help .eyebrow{color:var(--gold);}
+  #emergency-help .chapter__num{color:var(--gold);}
+  #emergency-help .chapter__intro{color:#B9C0C6;}
+  #emergency-help .rule{border-top-color:rgba(255,255,255,0.12);}
+  #emergency-help .rule .icon{color:var(--gold);}
+  #emergency-help .rule span{color:#B9C0C6;}
+  #emergency-help .note{
+    margin-top:22px;
+    font-size:13.5px;
+    color:#B9C0C6;
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  /* Guidelines */
+  .guidelines-box{
+    margin-top:24px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px;
+  }
+  .guidelines-box ul{margin:14px 0 20px; padding-left:20px; color:var(--ink-soft); font-size:14.5px;}
+  .guidelines-box li{margin-bottom:6px;}
+
+  /* Contact */
+  #contact-safety-team{border-bottom:none;}
+  .contact-card{
+    background:var(--pine);
+    color:#fff;
+    border-radius:20px;
+    padding:44px 40px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .contact-card h2{color:#fff; font-size:clamp(22px,3vw,28px);}
+  .contact-card p{color:rgba(255,255,255,0.82); margin-top:8px; max-width:44ch;}
+  .contact-card .btn-primary{background:#fff; color:var(--pine-deep);}
+  .contact-card .mono{font-family:'IBM Plex Mono',monospace; font-size:13px; opacity:.85; margin-top:10px; display:block;}
+
+  footer{
+    max-width:var(--wrap); margin:0 auto; padding:32px 28px 60px;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:880px){
+    .layout{grid-template-columns:1fr;}
+    .sidebar{display:none;}
+    .rail-mobile{display:flex;}
+    .compare{grid-template-columns:1fr;}
+    #emergency-help{margin:0 -20px; padding:44px 20px;}
+    .contact-card{padding:32px 24px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .pulse-path{animation:none; stroke-dashoffset:0;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar__brand"><span class="dot"></span> SNAPMATE&nbsp;/&nbsp;SAFETY</div>
+  <a class="topbar__cta" href="mailto:safety@snapmate.app">Contact Safety Team</a>
+</div>
+
+<nav class="rail-mobile" id="railMobile" aria-label="Chapters">
+  <a href="#meet-safely">01 Meet Safely</a>
+  <a href="#online-safety">02 Online Safety</a>
+  <a href="#common-scams">03 Common Scams</a>
+  <a href="#privacy">04 Privacy</a>
+  <a href="#report-block">05 Report &amp; Block</a>
+  <a href="#healthy-relationships">06 Healthy Relationships</a>
+  <a href="#emergency-help">07 Emergency Help</a>
+  <a href="#community-guidelines">08 Guidelines</a>
+  <a href="#contact-safety-team">09 Contact</a>
+</nav>
+
+<header class="hero">
+  <div class="eyebrow">SnapMate / Safety Center</div>
+  <h1>Your safety<br>comes <em>first.</em></h1>
+  <p>Everything you need to meet, chat, and connect on SnapMate — safely. Nine short chapters, no fine print.</p>
+  <div class="hero__actions">
+    <a class="btn-primary" href="#meet-safely">Start reading</a>
+    <a class="btn-ghost" href="mailto:safety@snapmate.app">Contact Safety Team</a>
+  </div>
+
+  <div class="pulse-wrap">
+    <svg viewBox="0 0 1200 64" preserveAspectRatio="none">
+      <path class="pulse-path" d="M0,32 L120,32 L140,8 L160,56 L180,32 L230,32 L245,20 L260,44 L275,32 L340,32 C 420,32 420,30 480,31 C 540,32 560,28 600,32 C 660,36 680,30 740,32 L1200,32"/>
+    </svg>
+    <div class="pulse-caption">
+      <span>ALERT</span>
+      <span>THIS IS WHAT LOOKING OUT FOR YOU FEELS LIKE</span>
+      <span>AT EASE</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <ol id="sideNav">
+      <li><a href="#meet-safely"><span class="num">01</span> Meet Safely</a></li>
+      <li><a href="#online-safety"><span class="num">02</span> Online Safety</a></li>
+      <li><a href="#common-scams"><span class="num">03</span> Common Scams</a></li>
+      <li><a href="#privacy"><span class="num">04</span> Privacy</a></li>
+      <li><a href="#report-block"><span class="num">05</span> Report &amp; Block</a></li>
+      <li><a href="#healthy-relationships"><span class="num">06</span> Healthy Relationships</a></li>
+      <li><a href="#emergency-help"><span class="num">07</span> Emergency Help</a></li>
+      <li><a href="#community-guidelines"><span class="num">08</span> Guidelines</a></li>
+      <li><a href="#contact-safety-team"><span class="num">09</span> Contact</a></li>
+    </ol>
+  </aside>
+
+  <main class="content">
+
+    <!-- 01 Meet Safely -->
+    <section class="chapter" id="meet-safely">
+      <div class="chapter__head"><span class="chapter__num">01</span><h2>Meet Safely</h2></div>
+      <p class="chapter__intro">The first meeting matters most. A few habits make it safer, every time.</p>
+      <div class="rule-list">
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+          <div><strong>Meet in public places.</strong><span>Choose a busy café, restaurant, or public space, at least for your first few dates.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 4h9a2 2 0 0 1 2 2v13l-4-2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M4 8v9a2 2 0 0 0 2 2h1"/></svg></span>
+          <div><strong>Tell a friend where you're going.</strong><span>Share who you're meeting, and when and where, before you go.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+          <div><strong>Arrange your own transportation.</strong><span>Get yourself to and from the date. Don't rely on a stranger for a ride.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 6h2"/></svg></span>
+          <div><strong>Keep your phone charged.</strong><span>A dead battery is the one thing you can't afford to plan around.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3c-4 3-8 4-8 4s0 6 8 14c8-8 8-14 8-14s-4-1-8-4z"/></svg></span>
+          <div><strong>Trust your instincts.</strong><span>If something feels wrong, that feeling is reason enough to leave.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 Online Safety -->
+    <section class="chapter" id="online-safety">
+      <div class="chapter__head"><span class="chapter__num">02</span><h2>Online Safety</h2></div>
+      <p class="chapter__intro">Everything that happens after "hello" should happen on your terms.</p>
+      <div class="rule-list">
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8" stroke-linecap="round"/></svg></span>
+          <div><strong>Never send money.</strong><span>Not to someone you haven't met in person, no matter the story.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+          <div><strong>Never share passwords.</strong><span>Not for SnapMate, your email, your bank, or anything else.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1.5 1.5"/><path d="M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1.5-1.5"/></svg></span>
+          <div><strong>Avoid suspicious links.</strong><span>Don't click links sent by people you don't know well yet.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 8l9 6 9-6"/></svg></span>
+          <div><strong>Verify identities before meeting.</strong><span>A quick video call confirms the person matches their profile.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4l16 16M4 20L20 4"/></svg></span>
+          <div><strong>Don't rush off SnapMate.</strong><span>Pressure to move to WhatsApp or texting right away is a common scam tactic. Take your time.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 Common Scams -->
+    <section class="chapter" id="common-scams">
+      <div class="chapter__head"><span class="chapter__num">03</span><h2>Common Scams</h2></div>
+      <p class="chapter__intro">Know the pattern and the story loses its power. Tap each one to read how it works.</p>
+      <div class="scam-list">
+        <details class="scam">
+          <summary><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.35-9.33-9.4C1.2 8.1 3.2 5 6.5 5c1.9 0 3.3 1 3.9 2.2C11 6 12.4 5 14.3 5c3.3 0 5.3 3.1 3.83 6.6C15.8 16.65 12 21 12 21z"/></svg></span>Romance Scam<span class="chev">＋</span></summary>
+          <div class="body">A stranger builds a fast, intense emotional bond, then invents a crisis, medical, legal, or travel, that only money can fix.</div>
+        </details>
+        <details class="scam">
+          <summary><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9 15V9l3 2 3-2v6"/></svg></span>Crypto Scam<span class="chev">＋</span></summary>
+          <div class="body">Someone convinces you to "invest" through a crypto platform or wallet they control, then disappears with your funds.</div>
+        </details>
+        <details class="scam">
+          <summary><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19h16M6 19V9l6-5 6 5v10"/></svg></span>Investment Scam<span class="chev">＋</span></summary>
+          <div class="body">A promise of guaranteed, unusually high returns on an opportunity that doesn't actually exist.</div>
+        </details>
+        <details class="scam">
+          <summary><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 11h18"/></svg></span>Gift Card Scam<span class="chev">＋</span></summary>
+          <div class="body">A request to pay a debt, fee, or "verification" cost using gift cards instead of a traceable payment method. Real institutions never ask for this.</div>
+        </details>
+        <details class="scam">
+          <summary><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>Fake Emergency Scam<span class="chev">＋</span></summary>
+          <div class="body">A sudden, urgent story, a stranded relative, an unpaid hospital bill, designed to make you act before you think.</div>
+        </details>
+        <details class="scam">
+          <summary><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v2"/></svg></span>Blackmail &amp; Sextortion<span class="chev">＋</span></summary>
+          <div class="body">Someone threatens to share private photos or messages unless you pay or comply. Stop responding and report it, don't engage or pay.</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- 04 Privacy -->
+    <section class="chapter" id="privacy">
+      <div class="chapter__head"><span class="chapter__num">04</span><h2>Privacy</h2></div>
+      <p class="chapter__intro">What you share is yours to control.</p>
+      <div class="rule-list">
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+          <div><strong>Protect your personal information.</strong><span>Keep your last name, address, and workplace off your profile.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z" opacity="0.35"/><path d="M4 5l16 15"/></svg></span>
+          <div><strong>Hide sensitive details.</strong><span>Location, employer, and daily routine are easy things to leave out.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span>
+          <div><strong>Review your profile before publishing.</strong><span>Check every photo and every line of your bio before it goes live.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="15" r="1.4"/></svg></span>
+          <div><strong>Use strong, unique passwords.</strong><span>A password manager makes this effortless, and worth setting up once.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 Report & Block -->
+    <section class="chapter" id="report-block">
+      <div class="chapter__head"><span class="chapter__num">05</span><h2>Report &amp; Block</h2></div>
+      <p class="chapter__intro">Two different tools. Here's when to reach for each.</p>
+      <div class="compare">
+        <div class="card">
+          <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg></span>
+          <h3>Report</h3>
+          <p>Flags a member for our Safety Team to review. We look into every report and take action, from a warning to a permanent ban, based on what we find.</p>
+          <div class="when">USE WHEN: behavior breaks our guidelines, even if it doesn't affect you directly.</div>
+        </div>
+        <div class="card">
+          <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M6 18L18 6"/></svg></span>
+          <h3>Block</h3>
+          <p>Immediately prevents another member from contacting you or seeing your profile. It takes effect the moment you tap it, no review needed.</p>
+          <div class="when">USE WHEN: you want someone gone from your experience, right now.</div>
+        </div>
+      </div>
+      <div class="compare-note">You can do both at once. Blocking protects you instantly; reporting helps us protect everyone else.</div>
+    </section>
+
+    <!-- 06 Healthy Relationships -->
+    <section class="chapter" id="healthy-relationships">
+      <div class="chapter__head"><span class="chapter__num">06</span><h2>Healthy Relationships</h2></div>
+      <p class="chapter__intro">Good connections are built on these, from the first message onward.</p>
+      <div class="rule-list">
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/></svg></span>
+          <div><strong>Respect boundaries.</strong><span>"No" is a complete sentence, and deserves to be treated like one.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-8.6 8.4A8.6 8.6 0 0 1 4 12a8.4 8.4 0 0 1 8.5-8.5 8.4 8.4 0 0 1 8.5 8"/><path d="M8 12h8M8 15h5"/></svg></span>
+          <div><strong>Communicate honestly.</strong><span>Say what you mean, and ask about what you don't understand.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span>
+          <div><strong>Consent matters.</strong><span>At every step, every time, with no exceptions.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+          <div><strong>Recognize red flags.</strong><span>Love-bombing, jealousy, and control are warning signs, not compliments.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M8 12h8" stroke-linecap="round"/></svg></span>
+          <div><strong>Avoid manipulation.</strong><span>Guilt, pressure, and ultimatums have no place in a healthy relationship.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 Emergency Help -->
+    <section class="chapter" id="emergency-help">
+      <div class="chapter__head"><span class="chapter__num">07</span><h2>Emergency Help</h2></div>
+      <p class="chapter__intro">If you ever feel unsafe, act first. Figure out the rest later.</p>
+      <div class="rule-list">
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <div><strong>Leave immediately.</strong><span>Trust the feeling over the awkwardness of leaving.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.9 2.2z"/></svg></span>
+          <div><strong>Contact local emergency services.</strong><span>911 in the US, 112 across the EU and UK, or your local equivalent.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 4h9a2 2 0 0 1 2 2v13l-4-2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg></span>
+          <div><strong>Tell a trusted friend.</strong><span>Call or message someone right away, even a short update helps.</span></div>
+        </div>
+        <div class="rule">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg></span>
+          <div><strong>Report the account to SnapMate.</strong><span>Our Safety Team reviews every report and can act quickly.</span></div>
+        </div>
+      </div>
+      <div class="note">EMERGENCY NUMBERS VARY BY COUNTRY — WHEN IN DOUBT, CALL LOCAL POLICE.</div>
+    </section>
+
+    <!-- 08 Community Guidelines -->
+    <section class="chapter" id="community-guidelines">
+      <div class="chapter__head"><span class="chapter__num">08</span><h2>Community Guidelines</h2></div>
+      <p class="chapter__intro">The short version of the rules everyone on SnapMate agrees to follow.</p>
+      <div class="guidelines-box">
+        <ul>
+          <li>Respect every member, in every message.</li>
+          <li>Zero tolerance for harassment, hate speech, or unsolicited explicit content.</li>
+          <li>No minors, no impersonation, no fake profiles.</li>
+          <li>No soliciting money, services, or business through the app.</li>
+        </ul>
+        <a class="btn-ghost" href="#">Read the full guidelines</a>
+      </div>
+    </section>
+
+    <!-- 09 Contact -->
+    <section class="chapter" id="contact-safety-team">
+      <div class="chapter__head"><span class="chapter__num">09</span><h2>Contact Safety Team</h2></div>
+      <div class="contact-card" style="margin-top:24px;">
+        <div>
+          <h2>We're here, every day.</h2>
+          <p>Something felt off? Tell us. Our Safety Team reviews every message.</p>
+          <span class="mono">safety@snapmate.app</span>
+        </div>
+        <a class="btn-primary" href="mailto:safety@snapmate.app">Contact Safety Team</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <span>© SNAPMATE — SAFETY CENTER</span>
+  <span>SAFETY@SNAPMATE.APP</span>
+</footer>
+
+<script>
+  // Scrollspy for sidebar + mobile rail
+  const sections = document.querySelectorAll('section.chapter');
+  const sideLinks = document.querySelectorAll('#sideNav a');
+  const railLinks = document.querySelectorAll('#railMobile a');
+
+  const setActive = (id) => {
+    sideLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#'+id));
+    railLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#'+id));
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) setActive(entry.target.id);
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
